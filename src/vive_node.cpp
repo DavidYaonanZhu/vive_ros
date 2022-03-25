@@ -22,7 +22,7 @@ void mySigintHandler(int sig){
 ros::shutdown();
 }
 
-//#define USE_IMAGE
+#define USE_IMAGE
 
 #define USE_OPENGL
 //#define USE_VULKAN
@@ -89,6 +89,7 @@ class CMainApplicationMod : public CMainApplication{
         glFlush();
         glFinish();
       }
+      ROS_INFO_STREAM("render3");
       if ( m_iTrackedControllerCount != m_iTrackedControllerCount_Last || m_iValidPoseCount != m_iValidPoseCount_Last ){
         m_iValidPoseCount_Last = m_iValidPoseCount;
         m_iTrackedControllerCount_Last = m_iTrackedControllerCount;
@@ -483,10 +484,12 @@ VIVEnode::VIVEnode(int rate)
 
 #ifdef USE_IMAGE
   image_transport::ImageTransport it(nh_);
-  sub_L = it.subscribe("/image_left", 1, &VIVEnode::imageCb_L, this);
-  sub_R = it.subscribe("/image_right", 1, &VIVEnode::imageCb_R, this);
-  sub_i_L = nh_.subscribe("/camera_info_left", 1, &VIVEnode::infoCb_L, this);
-  sub_i_R = nh_.subscribe("/camera_info_right", 1, &VIVEnode::infoCb_R, this);
+  sub_L = it.subscribe("/camera/fisheye1/image_raw", 1, &VIVEnode::imageCb_L, this);
+  sub_R = it.subscribe("/camera/fisheye2/image_raw", 1, &VIVEnode::imageCb_R, this);
+  // sub_L = it.subscribe("/zedm/zed_node/left_raw/image_raw_color", 1, &VIVEnode::imageCb_L, this);
+  // sub_R = it.subscribe("/zedm/zed_node/right_raw/image_raw_color", 1, &VIVEnode::imageCb_R, this);
+  sub_i_L = nh_.subscribe("/camera/fisheye1/camera_info", 1, &VIVEnode::infoCb_L, this);
+  sub_i_R = nh_.subscribe("/camera/fisheye2/camera_info", 1, &VIVEnode::infoCb_R, this);
   pMainApplication = new CMainApplicationMod( 0, NULL );
   if (!pMainApplication->BInit()){
     pMainApplication->Shutdown();
